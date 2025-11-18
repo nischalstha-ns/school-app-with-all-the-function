@@ -71,12 +71,39 @@ class _DashboardPageState extends State<DashboardPage> {
     final isDesktop = MediaQuery.of(context).size.width > 800;
     
     return Scaffold(
-      appBar: !isDesktop ? AppBar(
-        title: const Text('Mount Glory School'),
-        backgroundColor: Colors.blue[700],
-        foregroundColor: Colors.white,
+      appBar: AppBar(
+        title: !isDesktop ? const Text('SchoolHub') : null,
+        backgroundColor: Colors.white,
         elevation: 0,
-      ) : null,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications_outlined),
+            onPressed: () {},
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () {},
+          ),
+          const SizedBox(width: 10),
+          const CircleAvatar(
+            backgroundImage: NetworkImage('https://randomuser.me/api/portraits/women/32.jpg'),
+          ),
+          const SizedBox(width: 10),
+          if (isDesktop) 
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 10),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Linda Adams', style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text('Administrator', style: TextStyle(fontSize: 12)),
+                ],
+              ),
+            ),
+          const SizedBox(width: 20),
+        ],
+      ),
       drawer: !isDesktop ? Drawer(
         child: SidebarNavigation(
           selectedIndex: _selectedIndex,
@@ -88,21 +115,188 @@ class _DashboardPageState extends State<DashboardPage> {
           },
         ),
       ) : null,
-      body: isDesktop ? Row(
+      body: Row(
         children: [
           // Sidebar Navigation for desktop
-          SidebarNavigation(
-            selectedIndex: _selectedIndex,
-            onItemSelected: (index) {
-              setState(() {
-                _selectedIndex = index;
-              });
-            },
-          ),
-          
-          // Main Content
+          if (isDesktop)
+            SidebarNavigation(
+              selectedIndex: _selectedIndex,
+              onItemSelected: (index) {
+                setState(() {
+                  _selectedIndex = index;
+                });
+              },
+            ),
+          // Main content area
           Expanded(
             child: Container(
+              color: Colors.grey[50],
+              padding: const EdgeInsets.all(16.0),
+              child: _getPageContent(_selectedIndex),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class SidebarNavigation extends StatelessWidget {
+  final int selectedIndex;
+  final Function(int) onItemSelected;
+
+  const SidebarNavigation({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 220,
+      color: Colors.white,
+      child: Column(
+        children: [
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Icon(Icons.school, color: Colors.white, size: 20),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  'SchoolHub',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'MENU',
+              style: TextStyle(
+                color: Colors.grey,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildNavItem(0, Icons.dashboard_outlined, 'Dashboard'),
+          _buildNavItem(1, Icons.people_outline, 'Teachers'),
+          _buildNavItem(2, Icons.school_outlined, 'Students'),
+          _buildNavItem(3, Icons.calendar_today_outlined, 'Attendance'),
+          _buildNavItem(4, Icons.attach_money_outlined, 'Finance'),
+          _buildNavItem(5, Icons.notifications_outlined, 'Notice'),
+          _buildNavItem(6, Icons.event_outlined, 'Calendar'),
+          _buildNavItem(7, Icons.local_library_outlined, 'Library'),
+          _buildNavItem(8, Icons.message_outlined, 'Message'),
+          const Spacer(),
+          _buildNavItem(9, Icons.person_outline, 'Profile'),
+          _buildNavItem(10, Icons.settings_outlined, 'Settings'),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.headset_mic, color: Colors.white, size: 20),
+                  ),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Help Center',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Get help with SchoolHub',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(int index, IconData icon, String title) {
+    final isSelected = selectedIndex == index;
+    
+    return InkWell(
+      onTap: () => onItemSelected(index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue.withOpacity(0.1) : null,
+          border: isSelected
+              ? const Border(
+                  left: BorderSide(
+                    color: Colors.blue,
+                    width: 3,
+                  ),
+                )
+              : null,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.blue : Colors.grey,
+              size: 20,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              title,
+              style: TextStyle(
+                color: isSelected ? Colors.blue : Colors.black,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+   }
+}
               color: Colors.grey[50],
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
@@ -252,12 +446,15 @@ class SidebarNavigation extends StatelessWidget {
               color: isSelected ? Colors.blue : Colors.grey[600],
             ),
             const SizedBox(width: 12),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14,
-                color: isSelected ? Colors.blue : Colors.grey[800],
-                fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+            Expanded(
+              child: Text(
+                title,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isSelected ? Colors.blue : Colors.grey[800],
+                  fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -288,9 +485,12 @@ class TopBar extends StatelessWidget {
                 const SizedBox(width: 12),
                 Icon(Icons.search, color: Colors.grey[400], size: 20),
                 const SizedBox(width: 8),
-                Text(
-                  'Search...',
-                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                Expanded(
+                  child: Text(
+                    'Search...',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -384,9 +584,12 @@ class MobileTopBar extends StatelessWidget {
                 const SizedBox(width: 12),
                 Icon(Icons.search, color: Colors.grey[400], size: 20),
                 const SizedBox(width: 8),
-                Text(
-                  'Search...',
-                  style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                Expanded(
+                  child: Text(
+                    'Search...',
+                    style: TextStyle(color: Colors.grey[400], fontSize: 14),
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),
@@ -648,22 +851,22 @@ class StudentsSection extends StatelessWidget {
           const SizedBox(height: 20),
           Expanded(
             child: Center(
-              child: Stack(
+              child: const Stack(
                 alignment: Alignment.center,
                 children: [
                   SizedBox(
                     width: 180,
                     height: 180,
                     child: CustomPaint(
-                      painter: const GenderDistributionPainter(),
+                      painter: GenderDistributionPainter(),
                     ),
                   ),
-                  const Column(
+                  Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Row(
                         mainAxisSize: MainAxisSize.min,
-                        children: const [
+                        children: [
                           Icon(Icons.male, color: Colors.blue, size: 20),
                           SizedBox(width: 4),
                           Icon(Icons.female, color: Colors.amber, size: 20),
@@ -1396,11 +1599,14 @@ class MessagesSection extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  Expanded(
+                    child: Text(
+                      name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   Text(
@@ -1421,6 +1627,7 @@ class MessagesSection extends StatelessWidget {
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
+                softWrap: true,
               ),
             ],
           ),
